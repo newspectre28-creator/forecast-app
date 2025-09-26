@@ -70,7 +70,7 @@ def forecast_description(code: str):
 def get_tip(city, temp, humidity, fore):
     prompt = f"""
     City: {city}, Temperature: {temp}°C, Humidity: {humidity}%, Forecast code: {fore}.
-    Based on the weather information, give some energy tips to the user like the ones i have mentioned below. These are only examples. In the output display just the tip and nothing else. Keep it crisp(under 40 words) and if suggestions, give 4 or less suggestions, dont display the text "Type" in the output.
+    Based on the weather information, give some energy tips to the user like the ones i have mentioned below. These are only examples. In the output display just the tip and nothing else. Keep it crisp(under 40 words) and if suggestions, give 4 or less suggestions, strictly dont display the text "Type" in the output.
  
     Type - 1: Sunny 36°C, 40% humidity
     Energy &safety tips:Use ceiling fans before switching on AC. Keep curtains/blinds closed in the afternoon to reduce room heating. Prefer using coolers instead of AC when possible. Try to use washing machine/iron during morning-afternoon hours and try not to dry clothes on dryer but use sunlight instead. Safety: Stay hydrated and avoid overloading power strips.
@@ -182,7 +182,6 @@ cities = [
     "Kolkata",
     "Mumbai",
     "Pune",
-    "Visakhapatnam",
 ]
  
 city = st.selectbox("Select a city:", cities, index=1)
@@ -220,6 +219,7 @@ if st.button("🔍 Get Insights"):
  
     except Exception as e:
         st.error(f"Error: {e}")
+
 
 
 
