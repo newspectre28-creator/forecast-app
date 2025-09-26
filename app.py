@@ -56,7 +56,7 @@ def fetch_weather(city: str):
         "71": "Snow ❄️",
         "95": "Thunderstorm ⛈",
     }
-    fore_text = conditions.get(fore_code, "Unknown")
+    fore_text = conditions.get(fore_code)
 
     humidity = None
     if "hourly" in data and "relative_humidity_2m" in data["hourly"]:
@@ -111,5 +111,6 @@ if st.button("Get Forecast"):
         st.subheader("💡 Energy-Saving Tip")
         tip = get_tip(city, wx['temp_c'], wx['humidity'], wx['forecast'])
         st.success(tip)
+
 
 
