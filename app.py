@@ -167,7 +167,7 @@ st.markdown(
 )
  
 st.markdown(
-    "<h1 style='text-align: center; color:#00C2A8;'>🌦️ Your Energy Your way</h1>",
+    "<h1 style='text-align: center; color:#00C2A8;'>🌦️ Your Energy Your Way</h1>",
     unsafe_allow_html=True,
 )
  
@@ -220,6 +220,7 @@ if st.button("🔍 Get Insights"):
  
     except Exception as e:
         st.error(f"Error: {e}")
+
 
 
 
