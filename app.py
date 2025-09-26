@@ -42,8 +42,8 @@ def get_tip_groq(temp, humidity, fore):
     - Humidity: {humidity} %
     - Forecast code: {fore}
 
-    Based on this, give a **short, crisp energy-saving and safety tip** 
-    for Indian households (<25 words).
+    Based on this, give a **short, practical insight for an user living in india who would use it for their daily usecases like planning their day around the weather forecast to optimize 
+    electronic appliances usage and use it to minimize their energy consumption on a daily basis. Keep the tip less than 30 words.
     """
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",  # free model
@@ -62,3 +62,4 @@ if st.button("Get Weather & Tip"):
     tip = get_tip_groq(wx['temp_c'], wx['humidity'], wx['forecast'])
     st.subheader("💡 Energy-Saving Tip")
     st.success(tip)
+
