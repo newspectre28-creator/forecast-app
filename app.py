@@ -211,7 +211,7 @@ if st.button("🔍 Get Insights"):
         st.markdown(
             f"""
 <div style="margin-top:20px;background-color:#0E1117;padding:20px;border-radius:15px;box-shadow:0px 4px 12px rgba(0,0,0,0.5);">
-<h3 style="color:#00C2A8;">⚡ Energy-Saving Tip</h3>
+<h3 style="color:#00C2A8;">⚡ Energy Insights</h3>
 <p style="color:#E6EDF3;font-size:16px;">{tip}</p>
 </div>
             """,
@@ -220,6 +220,7 @@ if st.button("🔍 Get Insights"):
  
     except Exception as e:
         st.error(f"Error: {e}")
+
 
 
 
