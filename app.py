@@ -5,7 +5,7 @@ from groq import Groq
 # --------------------------
 # CONFIG
 # --------------------------
-API_KEY = "YOUR_GROQ_API_KEY"  # <-- replace with your Groq key
+API_KEY = "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"  # <-- replace with your Groq key
 client = Groq(api_key=API_KEY)
 
 CITIES = [
@@ -111,3 +111,4 @@ if st.button("Get Forecast"):
         st.subheader("💡 Energy-Saving Tip")
         tip = get_tip(city, wx['temp_c'], wx['humidity'], wx['forecast'])
         st.success(tip)
+
