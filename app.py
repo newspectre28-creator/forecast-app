@@ -3,7 +3,7 @@ import requests
 from groq import Groq
 
 # --------------------------
-# API Setup (replace with your key or use env var)
+# API Setup
 # --------------------------
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
@@ -13,7 +13,12 @@ client = Groq(api_key=GROQ_API_KEY)
 # --------------------------
 def fetch_weather(city: str):
     geo_url = "https://geocoding-api.open-meteo.com/v1/search"
-    g = requests.get(geo_url, params={"name": city, "count": 1, "language": "en", "format": "json"}, timeout=10, verify=False)
+    g = requests.get(
+        geo_url,
+        params={"name": city, "count": 1, "language": "en", "format": "json"},
+        timeout=10,
+        verify=False,
+    )
     g.raise_for_status()
     gdata = g.json()
 
@@ -27,7 +32,7 @@ def fetch_weather(city: str):
         "latitude": lat,
         "longitude": lon,
         "current_weather": True,
-        "hourly": "temperature_2m,relative_humidity_2m,weathercode"
+        "hourly": "temperature_2m,relative_humidity_2m,weathercode",
     }
     r = requests.get(wx_url, params=params, timeout=10, verify=False)
     r.raise_for_status()
@@ -37,16 +42,11 @@ def fetch_weather(city: str):
     t = current.get("temperature")
     fore = str(current.get("weathercode", "NA"))
 
-    # Approx humidity
     humidity = None
     if "hourly" in data and "relative_humidity_2m" in data["hourly"]:
         humidity = data["hourly"]["relative_humidity_2m"][0]
 
-    return {
-        "temp_c": t,
-        "humidity": humidity,
-        "forecast": fore
-    }
+    return {"temp_c": t, "humidity": humidity, "forecast": fore}
 
 # --------------------------
 # Forecast code → label/icon
@@ -74,8 +74,7 @@ def get_tip(city, temp, humidity, fore):
     Keep it under 25 words.
     """
     response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[{"role": "user", "content": prompt}],
+        model="llama-3.1-8b-instant", messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content.strip()
 
@@ -84,11 +83,47 @@ def get_tip(city, temp, humidity, fore):
 # --------------------------
 st.set_page_config(page_title="Weather + Energy Tips", page_icon="🌦️", layout="centered")
 
-st.markdown("<h1 style='text-align: center; color:#00ff88;'>🌦️ Smart Weather & Energy Advisor</h1>", unsafe_allow_html=True)
+st.markdown(
+    """
+    <style>
+        body {
+            background-color: #0B0F19;
+            color: #E6EDF3;
+        }
+        .stButton>button {
+            background-color: #00C2A8;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+            padding: 0.6em 1.2em;
+        }
+        .stSelectbox label {
+            color: #E6EDF3 !important;
+            font-weight: 600;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    "<h1 style='text-align: center; color:#00C2A8;'>🌦️ Smart Weather & Energy Advisor</h1>",
+    unsafe_allow_html=True,
+)
 
 # City dropdown (added Jamnagar)
-cities = ["Ahmedabad", "Bengaluru", "Chennai", "Delhi", "Hyderabad", "Jamnagar",
-          "Kolkata", "Mumbai", "Pune", "Visakhapatnam"]
+cities = [
+    "Ahmedabad",
+    "Bengaluru",
+    "Chennai",
+    "Delhi",
+    "Hyderabad",
+    "Jamnagar",
+    "Kolkata",
+    "Mumbai",
+    "Pune",
+    "Visakhapatnam",
+]
 
 city = st.selectbox("Select a city:", cities, index=1)
 
@@ -100,24 +135,24 @@ if st.button("🔍 Get Forecast & Tip"):
         # Weather Card
         st.markdown(
             f"""
-            <div style="background-color:#1b2a21;padding:20px;border-radius:15px;text-align:center;">
-                <h2 style="color:#00ff88;">{city}</h2>
-                <h1 style="font-size:50px;">{icon}</h1>
-                <p style="color:#d1f5d3;font-size:18px;">{desc}</p>
-                <p style="color:#d1f5d3;">🌡️ Temp: <b>{wx['temp_c']}°C</b></p>
-                <p style="color:#d1f5d3;">💧 Humidity: <b>{wx['humidity']}%</b></p>
+            <div style="background-color:#1B1F2A;padding:25px;border-radius:20px;text-align:center;box-shadow:0px 4px 12px rgba(0,0,0,0.5);">
+                <h2 style="color:#00C2A8; margin-bottom:10px;">{city}</h2>
+                <div style="font-size:60px;">{icon}</div>
+                <p style="color:#E6EDF3;font-size:18px;margin:5px;">{desc}</p>
+                <p style="color:#E6EDF3;margin:5px;">🌡️ <b>{wx['temp_c']}°C</b></p>
+                <p style="color:#E6EDF3;margin:5px;">💧 <b>{wx['humidity']}%</b></p>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        # LLM Tip
+        # LLM Tip Card
         tip = get_tip(city, wx["temp_c"], wx["humidity"], wx["forecast"])
         st.markdown(
             f"""
-            <div style="margin-top:20px;background-color:#0d1117;padding:20px;border-radius:15px;">
-                <h3 style="color:#00ff88;">⚡ Energy-Saving Tip</h3>
-                <p style="color:#d1f5d3;font-size:16px;">{tip}</p>
+            <div style="margin-top:20px;background-color:#0E1117;padding:20px;border-radius:15px;box-shadow:0px 4px 12px rgba(0,0,0,0.5);">
+                <h3 style="color:#00C2A8;">⚡ Energy-Saving Tip</h3>
+                <p style="color:#E6EDF3;font-size:16px;">{tip}</p>
             </div>
             """,
             unsafe_allow_html=True,
