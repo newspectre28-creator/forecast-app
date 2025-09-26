@@ -1,7 +1,8 @@
 [theme]
 base="dark"
-primaryColor="#00ff88"
-backgroundColor="#0d1117"
-secondaryBackgroundColor="#1b2a21"
-textColor="#d1f5d3"
+primaryColor="#00C2A8"            # Teal/blue-green accent (modern)
+backgroundColor="#0E1117"         # Dark gray/blue background
+secondaryBackgroundColor="#1B1F2A" # Slightly lighter dark panels
+textColor="#E6EDF3"               # Soft off-white text
 font="sans serif"
+
