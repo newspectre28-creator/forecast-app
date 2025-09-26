@@ -79,7 +79,7 @@ def get_tip(city, temp, humidity, forecast):
     Keep it under 30 words.
     """
     response = client.chat.completions.create(
-        model="llama3-8b-8192",
+        model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}],
     )
     return response.choices[0].message.content.strip()
@@ -111,4 +111,5 @@ if st.button("Get Forecast"):
         st.subheader("💡 Energy-Saving Tip")
         tip = get_tip(city, wx['temp_c'], wx['humidity'], wx['forecast'])
         st.success(tip)
+
 
