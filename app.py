@@ -35,10 +35,9 @@ def fetch_weather(city: str) -> Dict[str, Any]:
         humidity = data["hourly"]["relative_humidity_2m"][0]
     return {"temp_c": t, "humidity": humidity, "forecast": fore}
 
-def get_tip_groq(temp, humidity, city):
+def get_tip_groq(temp, humidity):
     prompt = f"""
     Current weather:
-    - City: {city}
     - Temperature: {temp} °C
     - Humidity: {humidity} %
     
@@ -64,5 +63,6 @@ if st.button("Get Weather & Tip"):
     tip = get_tip_groq(wx['temp_c'], wx['humidity'], wx['forecast'])
     st.subheader("💡 Energy-Saving Tip")
     st.success(tip)
+
 
 
