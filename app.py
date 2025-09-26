@@ -3,18 +3,13 @@ import requests
 from groq import Groq
 
 # --------------------------
-# CONFIG
+# API Setup (replace with your key or use env var)
 # --------------------------
-API_KEY = "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"  # <-- replace with your Groq key
-client = Groq(api_key=API_KEY)
-
-CITIES = [
-    "Bengaluru", "Delhi", "Mumbai", "Chennai", "Kolkata",
-    "Hyderabad", "Pune", "Ahmedabad", "Jaipur", "Lucknow"
-]
+GROQ_API_KEY = "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"
+client = Groq(api_key=GROQ_API_KEY)
 
 # --------------------------
-# Fetch weather data
+# Weather fetch function
 # --------------------------
 def fetch_weather(city: str):
     geo_url = "https://geocoding-api.open-meteo.com/v1/search"
@@ -23,8 +18,7 @@ def fetch_weather(city: str):
     gdata = g.json()
 
     if not gdata.get("results"):
-        return None
-
+        raise ValueError(f"No location found for {city}")
     loc = gdata["results"][0]
     lat, lon = loc["latitude"], loc["longitude"]
 
@@ -41,23 +35,9 @@ def fetch_weather(city: str):
 
     current = data.get("current_weather", {})
     t = current.get("temperature")
-    fore_code = str(current.get("weathercode", "NA"))
+    fore = str(current.get("weathercode", "NA"))
 
-    # weathercode mapping (simplified)
-    conditions = {
-        "0": "Clear sky ☀️",
-        "1": "Mainly clear 🌤",
-        "2": "Partly cloudy ⛅",
-        "3": "Overcast ☁️",
-        "45": "Fog 🌫",
-        "48": "Depositing rime fog 🌫",
-        "51": "Light drizzle 🌧",
-        "61": "Rain 🌧",
-        "71": "Snow ❄️",
-        "95": "Thunderstorm ⛈",
-    }
-    fore_text = conditions.get(fore_code)
-
+    # Approx humidity
     humidity = None
     if "hourly" in data and "relative_humidity_2m" in data["hourly"]:
         humidity = data["hourly"]["relative_humidity_2m"][0]
@@ -65,18 +45,33 @@ def fetch_weather(city: str):
     return {
         "temp_c": t,
         "humidity": humidity,
-        "forecast": fore_text
+        "forecast": fore
     }
 
 # --------------------------
-# Get Energy Saving Tip from Groq LLM
+# Forecast code → label/icon
 # --------------------------
-def get_tip(city, temp, humidity, forecast):
+def forecast_description(code: str):
+    mapping = {
+        "0": ("☀️", "Clear sky"),
+        "1": ("🌤️", "Mainly clear"),
+        "2": ("⛅", "Partly cloudy"),
+        "3": ("☁️", "Overcast"),
+        "61": ("🌧️", "Rain"),
+        "95": ("⛈️", "Thunderstorm"),
+        "96": ("⛈️", "Thunderstorm"),
+        "99": ("🌩️", "Heavy storm"),
+    }
+    return mapping.get(code, ("🌍", "Unknown"))
+
+# --------------------------
+# Groq LLM for tip
+# --------------------------
+def get_tip(city, temp, humidity, fore):
     prompt = f"""
-    You are an energy advisor. The user is in {city}.
-    Current weather: {temp}°C, {humidity}% humidity, {forecast}.
-    Give one crisp, practical energy-saving or safety tip for an Indian household/ indian user who would use this to optimize energy consumption.
-    Keep it under 30 words.
+    City: {city}, Temperature: {temp}°C, Humidity: {humidity}%, Forecast code: {fore}.
+    Provide a single short, practical, energy-saving tip for households in this city based on today's weather.
+    Keep it under 25 words.
     """
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
@@ -87,30 +82,46 @@ def get_tip(city, temp, humidity, forecast):
 # --------------------------
 # Streamlit UI
 # --------------------------
-st.title("🌍 Weather & Energy Advisor")
-st.markdown("Get live weather forecast and **smart energy-saving tips** ⚡")
+st.set_page_config(page_title="Weather + Energy Tips", page_icon="🌦️", layout="centered")
 
-city = st.selectbox("Select a City:", CITIES)
+st.markdown("<h1 style='text-align: center; color:#00ff88;'>🌦️ Smart Weather & Energy Advisor</h1>", unsafe_allow_html=True)
 
-if st.button("Get Forecast"):
-    wx = fetch_weather(city)
-    if not wx:
-        st.error("❌ Could not fetch weather. Try another city.")
-    else:
-        # Weather Panel
-        st.subheader(f"📍 {city} - Today's Weather")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("🌡 Temperature", f"{wx['temp_c']} °C")
-        with col2:
-            st.metric("💧 Humidity", f"{wx['humidity']} %")
-        with col3:
-            st.metric("🌦 Forecast", wx['forecast'])
+# City dropdown (added Jamnagar)
+cities = ["Ahmedabad", "Bengaluru", "Chennai", "Delhi", "Hyderabad", "Jamnagar",
+          "Kolkata", "Mumbai", "Pune", "Visakhapatnam"]
 
-        # Energy Tip
-        st.subheader("💡 Energy-Saving Tip")
-        tip = get_tip(city, wx['temp_c'], wx['humidity'], wx['forecast'])
-        st.success(tip)
+city = st.selectbox("Select a city:", cities, index=1)
 
+if st.button("🔍 Get Forecast & Tip"):
+    try:
+        wx = fetch_weather(city)
+        icon, desc = forecast_description(wx["forecast"])
 
+        # Weather Card
+        st.markdown(
+            f"""
+            <div style="background-color:#1b2a21;padding:20px;border-radius:15px;text-align:center;">
+                <h2 style="color:#00ff88;">{city}</h2>
+                <h1 style="font-size:50px;">{icon}</h1>
+                <p style="color:#d1f5d3;font-size:18px;">{desc}</p>
+                <p style="color:#d1f5d3;">🌡️ Temp: <b>{wx['temp_c']}°C</b></p>
+                <p style="color:#d1f5d3;">💧 Humidity: <b>{wx['humidity']}%</b></p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
+        # LLM Tip
+        tip = get_tip(city, wx["temp_c"], wx["humidity"], wx["forecast"])
+        st.markdown(
+            f"""
+            <div style="margin-top:20px;background-color:#0d1117;padding:20px;border-radius:15px;">
+                <h3 style="color:#00ff88;">⚡ Energy-Saving Tip</h3>
+                <p style="color:#d1f5d3;font-size:16px;">{tip}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    except Exception as e:
+        st.error(f"Error: {e}")
