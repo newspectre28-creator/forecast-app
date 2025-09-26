@@ -35,15 +35,17 @@ def fetch_weather(city: str) -> Dict[str, Any]:
         humidity = data["hourly"]["relative_humidity_2m"][0]
     return {"temp_c": t, "humidity": humidity, "forecast": fore}
 
-def get_tip_groq(temp, humidity, fore):
+def get_tip_groq(temp, humidity, city):
     prompt = f"""
     Current weather:
+    - City: {city}
     - Temperature: {temp} °C
     - Humidity: {humidity} %
-    - Forecast code: {fore}
+    
 
-    Based on this, give a **short, practical insight for an user living in india who would use it for their daily usecases like planning their day around the weather forecast to optimize 
-    electronic appliances usage and use it to minimize their energy consumption on a daily basis. Keep the tip less than 30 words.
+   Based on the current weather parameter which gives Temperature and humidity. Take the city into consideration as well and, give a **short, practical insight for an user living in india who would use it for their daily usecases like planning their day around the weather forecast to optimize 
+   electronic appliances usage and use it to minimize their energy consumption on a daily basis. Keep the tip less than 30 words
+    
     """
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",  # free model
@@ -62,4 +64,5 @@ if st.button("Get Weather & Tip"):
     tip = get_tip_groq(wx['temp_c'], wx['humidity'], wx['forecast'])
     st.subheader("💡 Energy-Saving Tip")
     st.success(tip)
+
 
