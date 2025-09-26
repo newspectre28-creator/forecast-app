@@ -167,7 +167,7 @@ st.markdown(
 )
  
 st.markdown(
-    "<h1 style='text-align: center; color:#00C2A8;'>🌦️ Smart Weather & Energy Advisor</h1>",
+    "<h1 style='text-align: center; color:#00C2A8;'>🌦️ Enersave</h1>",
     unsafe_allow_html=True,
 )
  
@@ -187,7 +187,7 @@ cities = [
  
 city = st.selectbox("Select a city:", cities, index=1)
  
-if st.button("🔍 Get Forecast & Tip"):
+if st.button("🔍 Get Insights"):
     try:
         wx = fetch_weather(city)
         icon, desc = forecast_description(wx["forecast"])
@@ -220,6 +220,7 @@ if st.button("🔍 Get Forecast & Tip"):
  
     except Exception as e:
         st.error(f"Error: {e}")
+
 
 
 
