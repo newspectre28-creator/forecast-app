@@ -70,7 +70,7 @@ def forecast_description(code: str):
 def get_tip(city, temp, humidity, fore):
     prompt = f"""
     City: {city}, Temperature: {temp}°C, Humidity: {humidity}%, Forecast code: {fore}.
-    The above is the weather information of a particular place. Based on the given data now select the type of case and energy & safety tips from the following examples according to the weather conditions given and the type in the given examples.
+    Based on the weather information, give some energy tips to the user like the ones i have mentioned below. These are only examples
  
     Type - 1: Sunny 36°C, 40% humidity
     Energy &safety tips:Use ceiling fans before switching on AC. Keep curtains/blinds closed in the afternoon to reduce room heating. Prefer using coolers instead of AC when possible. Try to use washing machine/iron during morning-afternoon hours and try not to dry clothes on dryer but use sunlight instead. Safety: Stay hydrated and avoid overloading power strips.
@@ -220,3 +220,4 @@ if st.button("🔍 Get Forecast & Tip"):
  
     except Exception as e:
         st.error(f"Error: {e}")
+
